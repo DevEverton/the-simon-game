@@ -1,4 +1,5 @@
-const GLOBAL_GAME = {};
+const GAMEPLAY = [];
+const PLAYER = [];
 let GLOBAL_LEVEL = 0;
 let GAME_ON = false;
 
@@ -7,11 +8,14 @@ window.addEventListener("load", () => {
 });
 
 function startGame() {
+  const buttons = getButtons();
+
   $(document).keypress(() => {
     if (!GAME_ON) {
       playGame();
       $("#level-title").text(`Level ${GLOBAL_LEVEL}`);
       GAME_ON = true;
+      addClickListeners(buttons);
     }
   });
 }
@@ -27,32 +31,46 @@ function playGame() {
 
   switch (getRandomColor()) {
     case "red":
-      playSound("./sounds/red.mp3");
-      animate(buttons.red);
-      GLOBAL_GAME[GLOBAL_LEVEL] = "red";
+      buttonAnimate(buttons.red, "./sounds/red.mp3");
+      GAMEPLAY.push("red");
       break;
     case "green":
-      playSound("./sounds/green.mp3");
-      animate(buttons.green);
-      GLOBAL_GAME[GLOBAL_LEVEL] = "green";
+      buttonAnimate(buttons.green, "./sounds/green.mp3");
+      GAMEPLAY.push("green");
       break;
     case "blue":
-      playSound("./sounds/blue.mp3");
-      animate(buttons.blue);
-      GLOBAL_GAME[GLOBAL_LEVEL] = "blue";
+      buttonAnimate(buttons.blue, "./sounds/blue.mp3");
+      GAMEPLAY.push("blue");
       break;
     case "yellow":
-      playSound("./sounds/yellow.mp3");
-      animate(buttons.yellow);
-      GLOBAL_GAME[GLOBAL_LEVEL] = "yellow";
+      buttonAnimate(buttons.yellow, "./sounds/yellow.mp3");
+      GAMEPLAY.push("yellow");
       break;
     default:
       break;
   }
-  console.log(GLOBAL_GAME);
 }
 
-function gameOver() {}
+function nextLevel() {}
+
+function gameOver() {
+  $("#level-title").text(`Game Over. Click any key to start.`);
+}
+
+function buttonAnimate(button, location) {
+  playSound(location);
+  animate(button);
+}
+
+function addClickListeners(buttons) {
+  const colors = ["red", "green", "blue", "yellow"];
+  for (let i = 0; i < colors.length; i++) {
+    buttons[colors[i]].click((event) => {
+      buttonAnimate(buttons[colors[i]], `./sounds/${colors[i]}.mp3`);
+      PLAYER.push(event.target.id);
+    });
+  }
+}
 
 function getButtons() {
   const red = $("#red");
