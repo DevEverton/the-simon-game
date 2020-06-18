@@ -1,5 +1,6 @@
-let GAMEPLAY = [];
-let PLAYER = [];
+let sequence = [];
+let playerSequence = [];
+let index = 0;
 let LEVEL = 0;
 let GAME_ON = false;
 
@@ -11,7 +12,9 @@ function startGame() {
   const buttons = getButtons();
   $(document).keypress(() => {
     if (!GAME_ON) {
-      playGame();
+      setTimeout(() => {
+        playGame();
+      }, 500);
       addClickListeners(buttons);
       GAME_ON = true;
     }
@@ -31,19 +34,19 @@ function playGame() {
   switch (getRandomColor()) {
     case "red":
       buttonAnimate(buttons.red, "./sounds/red.mp3");
-      GAMEPLAY.push("red");
+      sequence.push("red");
       break;
     case "green":
       buttonAnimate(buttons.green, "./sounds/green.mp3");
-      GAMEPLAY.push("green");
+      sequence.push("green");
       break;
     case "blue":
       buttonAnimate(buttons.blue, "./sounds/blue.mp3");
-      GAMEPLAY.push("blue");
+      sequence.push("blue");
       break;
     case "yellow":
       buttonAnimate(buttons.yellow, "./sounds/yellow.mp3");
-      GAMEPLAY.push("yellow");
+      sequence.push("yellow");
       break;
     default:
       break;
@@ -51,12 +54,16 @@ function playGame() {
 }
 
 function gameOver() {
-  $("div").off();
-  $("#level-title").text(`Game Over. Click any key to restart.`);
   GAME_ON = false;
   LEVEL = 0;
-  GAMEPLAY = [];
-  PLAYER = [];
+  sequence = [];
+  playerSequence = [];
+  index = 0;
+  $("div").off();
+  $("#level-title").text(`Game Over. Click any key to restart.`);
+  setTimeout(() => {
+    playSound("./sounds/wrong.mp3");
+  }, 200);
 }
 
 function buttonAnimate(button, location) {
@@ -64,26 +71,25 @@ function buttonAnimate(button, location) {
   animate(button);
 }
 
-function arraysEqual(a1, a2) {
-  return JSON.stringify(a1) == JSON.stringify(a2);
-}
-
 function addClickListeners(buttons) {
   const colors = ["red", "green", "blue", "yellow"];
   for (let i = 0; i < colors.length; i++) {
     buttons[colors[i]].click((event) => {
+      let id = event.target.id;
       buttonAnimate(buttons[colors[i]], `./sounds/${colors[i]}.mp3`);
-      PLAYER.push(event.target.id);
+      playerSequence.push(id);
 
-      if (PLAYER.length === GAMEPLAY.length) {
-        if (arraysEqual(GAMEPLAY, PLAYER)) {
-          setTimeout(() => {
-            PLAYER = [];
-            playGame();
-          }, 1000);
-        } else {
-          gameOver();
-        }
+      if (id === sequence[index]) {
+        index++;
+      } else {
+        gameOver();
+      }
+      if (sequence.length === playerSequence.length) {
+        setTimeout(() => {
+          playGame();
+        }, 1000);
+        playerSequence = [];
+        index = 0;
       }
     });
   }
