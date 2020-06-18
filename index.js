@@ -10,7 +10,7 @@ window.addEventListener("load", () => {
 
 function startGame() {
   const buttons = getButtons();
-  $(document).keypress(() => {
+  function start() {
     if (!GAME_ON) {
       setTimeout(() => {
         playGame();
@@ -18,6 +18,14 @@ function startGame() {
       addClickListeners(buttons);
       GAME_ON = true;
     }
+  }
+
+  $(document).on("touchstart", () => {
+    start();
+  });
+
+  $(document).keypress(() => {
+    start();
   });
 }
 
@@ -64,6 +72,17 @@ function gameOver() {
   setTimeout(() => {
     playSound("./sounds/wrong.mp3");
   }, 200);
+  $("body").css("background-color", "red");
+  $("body").animate(
+    {
+      opacity: 0.25,
+    },
+    200,
+    () => {
+      $("body").css("background-color", "#011F3F");
+      $("body").animate({ opacity: 1 });
+    }
+  );
 }
 
 function buttonAnimate(button, location) {
@@ -83,6 +102,7 @@ function addClickListeners(buttons) {
         index++;
       } else {
         gameOver();
+        return;
       }
       if (sequence.length === playerSequence.length) {
         setTimeout(() => {
@@ -107,6 +127,7 @@ function playSound(location) {
   let sound = new Audio(location);
   sound.play();
 }
+
 function animate(id) {
   id.animate(
     {
