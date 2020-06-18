@@ -1,6 +1,6 @@
-const GAMEPLAY = [];
-const PLAYER = [];
-let GLOBAL_LEVEL = 0;
+let GAMEPLAY = [];
+let PLAYER = [];
+let LEVEL = 0;
 let GAME_ON = false;
 
 window.addEventListener("load", () => {
@@ -9,13 +9,11 @@ window.addEventListener("load", () => {
 
 function startGame() {
   const buttons = getButtons();
-
   $(document).keypress(() => {
     if (!GAME_ON) {
       playGame();
-      $("#level-title").text(`Level ${GLOBAL_LEVEL}`);
-      GAME_ON = true;
       addClickListeners(buttons);
+      GAME_ON = true;
     }
   });
 }
@@ -26,7 +24,8 @@ function playGame() {
     let ranNum = Math.floor(Math.random() * 4);
     return colors[ranNum];
   }
-  GLOBAL_LEVEL++;
+  LEVEL++;
+  $("#level-title").text(`Level ${LEVEL}`);
   const buttons = getButtons();
 
   switch (getRandomColor()) {
@@ -51,15 +50,22 @@ function playGame() {
   }
 }
 
-function nextLevel() {}
-
 function gameOver() {
-  $("#level-title").text(`Game Over. Click any key to start.`);
+  $("div").off();
+  $("#level-title").text(`Game Over. Click any key to restart.`);
+  GAME_ON = false;
+  LEVEL = 0;
+  GAMEPLAY = [];
+  PLAYER = [];
 }
 
 function buttonAnimate(button, location) {
   playSound(location);
   animate(button);
+}
+
+function arraysEqual(a1, a2) {
+  return JSON.stringify(a1) == JSON.stringify(a2);
 }
 
 function addClickListeners(buttons) {
@@ -68,6 +74,17 @@ function addClickListeners(buttons) {
     buttons[colors[i]].click((event) => {
       buttonAnimate(buttons[colors[i]], `./sounds/${colors[i]}.mp3`);
       PLAYER.push(event.target.id);
+
+      if (PLAYER.length === GAMEPLAY.length) {
+        if (arraysEqual(GAMEPLAY, PLAYER)) {
+          setTimeout(() => {
+            PLAYER = [];
+            playGame();
+          }, 1000);
+        } else {
+          gameOver();
+        }
+      }
     });
   }
 }
